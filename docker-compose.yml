@@ -1,0 +1,41 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - APP_PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-billing}
+      - DB_USER=${DB_USER:-billing_user}
+      - DB_PASSWORD=${DB_PASSWORD:-change_me}
+      - BUSINESS_NAME=${BUSINESS_NAME:-Your Business Name}
+      - BUSINESS_ADDRESS=${BUSINESS_ADDRESS:-123 Main Street, City}
+      - BUSINESS_PHONE=${BUSINESS_PHONE:-+1234567890}
+      - BUSINESS_EMAIL=${BUSINESS_EMAIL:-business@example.com}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=${DB_NAME:-billing}
+      - POSTGRES_USER=${DB_USER:-billing_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-change_me}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-billing_user} -d ${DB_NAME:-billing}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:

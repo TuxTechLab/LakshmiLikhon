@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LakshmiLikhon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/print.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="#" data-page="dashboard" class="nav-brand" id="nav-brand-link">
+      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      LakshmiLikhon
+    </a>
+    <div class="nav-links">
+      <a href="#" data-page="dashboard" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Dashboard
+      </a>
+      <a href="#" data-page="create" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        Create Bill
+      </a>
+      <a href="#" data-page="history" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        History
+      </a>
+      <div class="currency-toggle" id="currency-toggle">
+        <button class="currency-btn active" data-currency="INR" title="Indian Rupee">Rs</button>
+        <button class="currency-btn" data-currency="USD" title="US Dollar">$</button>
+        <button class="currency-btn" data-currency="EUR" title="Euro">&euro;</button>
+        <button class="currency-btn" data-currency="GBP" title="British Pound">&pound;</button>
+        <button class="currency-btn" data-currency="BDT" title="Bangladeshi Taka">Tk</button>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div id="page-dashboard" class="page active">
+      <div class="dashboard">
+        <div class="page-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p class="page-subtitle">Welcome back. Here's your billing overview.</p>
+          </div>
+          <button class="btn btn-primary btn-lg" data-page="create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Bill
+          </button>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card stat-card-primary">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            </div>
+            <div class="stat-content">
+              <h3>Total Bills</h3>
+              <p id="stat-bill-count" class="stat-value">0</p>
+            </div>
+          </div>
+          <div class="stat-card stat-card-accent">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            </div>
+            <div class="stat-content">
+              <h3>Latest Bill</h3>
+              <p id="stat-latest-bill" class="stat-value">-</p>
+            </div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-header">
+            <h2>Recent Bills</h2>
+            <a href="#" data-page="history" class="section-link">View all</a>
+          </div>
+          <div id="recent-bills-list" class="bills-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-create" class="page">
+      <div class="create-bill">
+        <div class="page-header">
+          <div>
+            <h1>Create New Bill</h1>
+            <p class="page-subtitle">Fill in the details below to generate a new bill.</p>
+          </div>
+        </div>
+        <form id="bill-form">
+          <div class="form-grid">
+            <section class="section-card form-section-customer">
+              <div class="section-header">
+                <h2>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  Customer Information
+                </h2>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="customer-name">Name *</label>
+                  <input type="text" id="customer-name" placeholder="e.g. Shyam Kumar" required>
+                </div>
+                <div class="form-group">
+                  <label for="customer-phone">Phone</label>
+                  <input type="tel" id="customer-phone" placeholder="e.g. +8801712345678">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="customer-address">Address</label>
+                <textarea id="customer-address" rows="2" placeholder="e.g. Delhi, India"></textarea>
+              </div>
+            </section>
+
+            <section class="section-card form-section-items">
+              <div class="section-header">
+                <h2>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                  Items
+                </h2>
+              </div>
+              <div id="items-container"></div>
+              <button type="button" class="btn btn-outline" id="add-item-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Item
+              </button>
+            </section>
+
+            <section class="section-card form-section-summary">
+              <div class="section-header">
+                <h2>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                  Summary
+                </h2>
+              </div>
+              <div class="summary">
+                <div class="summary-row">
+                  <span>Subtotal</span>
+                  <span id="subtotal" class="summary-value">Rs 0.00</span>
+                </div>
+                <div class="summary-row summary-discount">
+                  <label for="discount">Discount</label>
+                  <div class="discount-input-wrapper">
+                    <input type="number" id="discount" min="0" step="0.01" value="0">
+                  </div>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-row summary-total">
+                  <span>Grand Total</span>
+                  <span id="grand-total" class="summary-value">Rs 0.00</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              Save Bill
+            </button>
+            <button type="button" class="btn btn-ghost" id="clear-form-btn">Clear Form</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="page-history" class="page">
+      <div class="history">
+        <div class="page-header">
+          <div>
+            <h1>Bill History</h1>
+            <p class="page-subtitle">Search and view all your previous bills.</p>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="search-bar">
+            <div class="search-input-wrapper">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="search-input" placeholder="Search by bill number, customer name, or phone...">
+            </div>
+            <button class="btn btn-primary" id="search-btn">Search</button>
+            <button class="btn btn-ghost" id="clear-search-btn">Clear</button>
+          </div>
+          <div id="history-list" class="bills-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-view" class="page">
+      <div class="bill-view" id="bill-view-content"></div>
+      <div class="form-actions">
+        <button class="btn btn-primary btn-lg" id="print-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          Print Bill
+        </button>
+        <button class="btn btn-ghost" data-page="history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Back to History
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/bills.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
