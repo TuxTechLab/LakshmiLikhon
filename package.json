@@ -1,7 +1,7 @@
 {
   "name": "bill-generator",
   "version": "1.0.0",
-  "description": "Bill/invoice generator for home-based cloth business",
+  "description": "Bill/invoice generator for local business",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

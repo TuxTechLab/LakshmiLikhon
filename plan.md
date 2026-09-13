@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-Build a modern web-based bill/invoice generator for a home-based cloth business with an admin panel, animations, and a polished UI.
+Build a modern web-based bill/invoice generator for a local business with an admin panel, animations, and a polished UI.
 
 The application runs as Docker containers and is usable in two environments:
 

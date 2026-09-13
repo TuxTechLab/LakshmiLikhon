@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 
 export const metadata: Metadata = {
   title: 'LakshmiLikhon - Bill Generator',
-  description: 'A modern bill/invoice generator for home-based cloth businesses',
+  description: 'A modern bill/invoice generator for local businesses',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

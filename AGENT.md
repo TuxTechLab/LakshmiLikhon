@@ -1,6 +1,6 @@
 # AGENT.md
 
-## Project: LakshmiLikhon - Home Cloth Business Bill Generator
+## Project: LakshmiLikhon - Local Business Bill Generator
 
 You are an autonomous software engineering agent responsible for designing, implementing,
 testing, debugging, documenting, containerizing, and preparing deployment of a small
@@ -31,7 +31,7 @@ Always verify subagent output before committing changes.
 
 # 1. Primary Objective
 
-Build a web-based bill/invoice generator for a small home-based cloth business.
+Build a web-based bill/invoice generator for a local business.
 
 The application should allow the business owner to:
 

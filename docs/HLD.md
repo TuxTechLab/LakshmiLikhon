@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-LakshmiLikhon is a web-based bill/invoice generator designed for a home-based cloth business. It enables the business owner to create, manage, search, and print bills through a modern web interface.
+LakshmiLikhon is a web-based bill/invoice generator designed for a local business. It enables the business owner to create, manage, search, and print bills through a modern web interface.
 
 ## 2. Objectives
 

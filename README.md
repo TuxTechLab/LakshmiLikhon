@@ -1,6 +1,6 @@
 # LakshmiLikhon
 
-A modern bill/invoice generator for home-based cloth businesses.
+A modern bill/invoice generator for local businesses.
 
 **Stack:** Next.js 14 · Express.js · PostgreSQL 16 · Tailwind CSS · Framer Motion · Docker
 
