@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: #f8f9fa;
+    --foreground: #212529;
+    --card: #ffffff;
+    --card-foreground: #212529;
+    --primary: #4c6ef5;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f3f5;
+    --secondary-foreground: #495057;
+    --muted: #f1f3f5;
+    --muted-foreground: #868e96;
+    --accent: #f1f3f5;
+    --accent-foreground: #495057;
+    --destructive: #e03131;
+    --border: #dee2e6;
+    --input: #dee2e6;
+    --ring: #4c6ef5;
+  }
+
+  .dark {
+    --background: #1a1b1e;
+    --foreground: #e9ecef;
+    --card: #25262b;
+    --card-foreground: #e9ecef;
+    --primary: #748ffc;
+    --primary-foreground: #1a1b1e;
+    --secondary: #2c2e33;
+    --secondary-foreground: #e9ecef;
+    --muted: #2c2e33;
+    --muted-foreground: #909296;
+    --accent: #2c2e33;
+    --accent-foreground: #e9ecef;
+    --destructive: #ff6b6b;
+    --border: #373a40;
+    --input: #373a40;
+    --ring: #748ffc;
+  }
+
+  body {
+    @apply bg-[var(--background)] text-[var(--foreground)] font-sans antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-primary-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2.5 text-sm font-medium text-[var(--foreground)] shadow-sm transition-all hover:bg-[var(--secondary)] active:scale-[0.98];
+  }
+
+  .btn-destructive {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-red-700 active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--secondary)] hover:text-[var(--foreground)];
+  }
+
+  .card {
+    @apply rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground)] placeholder-[var(--muted-foreground)] transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20;
+  }
+
+  .label {
+    @apply text-sm font-medium text-[var(--foreground)];
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .table-header {
+    @apply border-b border-[var(--border)] bg-[var(--secondary)] px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--muted-foreground)];
+  }
+
+  .table-cell {
+    @apply border-b border-[var(--border)] px-4 py-3 text-sm;
+  }
+
+  .toast {
+    @apply pointer-events-auto rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 shadow-lg;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+  .no-print {
+    @apply hidden !important;
+  }
+}

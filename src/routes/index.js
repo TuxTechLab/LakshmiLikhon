@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const billController = require('../controllers/billController');
+const authMiddleware = require('../middleware/auth');
 const config = require('../config');
 
 router.get('/health', async (req, res) => {
@@ -19,9 +20,9 @@ router.get('/config', (req, res) => {
   });
 });
 
-router.post('/bills', billController.createBill);
-router.get('/bills/search', billController.searchBills);
-router.get('/bills', billController.getBills);
-router.get('/bills/:id', billController.getBillById);
+router.post('/bills', authMiddleware, billController.createBill);
+router.get('/bills/search', authMiddleware, billController.searchBills);
+router.get('/bills', authMiddleware, billController.getBills);
+router.get('/bills/:id', authMiddleware, billController.getBillById);
 
 module.exports = router;

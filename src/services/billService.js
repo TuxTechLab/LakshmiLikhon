@@ -23,8 +23,8 @@ async function createBill({ customer_name, customer_phone, customer_address, bil
   }
 
   const parsedDiscount = parseFloat(discount) || 0;
-  if (parsedDiscount < 0) {
-    throw { status: 400, message: 'Discount cannot be negative' };
+  if (parsedDiscount < 0 || parsedDiscount > 100) {
+    throw { status: 400, message: 'Discount must be between 0 and 100 percent' };
   }
 
   const calculatedItems = items.map(item => ({

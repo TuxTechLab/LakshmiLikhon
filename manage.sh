@@ -37,11 +37,22 @@ ensure_env() {
   fi
 }
 
+load_env() {
+  if [ -f .env ]; then
+    FRONTEND_PORT=$(grep -E '^FRONTEND_PORT=' .env | cut -d'=' -f2 | tr -d ' "')
+    API_PORT=$(grep -E '^API_PORT=' .env | cut -d'=' -f2 | tr -d ' "')
+  fi
+  export FRONTEND_PORT="${FRONTEND_PORT:-3001}"
+  export API_PORT="${API_PORT:-3000}"
+}
+
 cmd_start() {
   ensure_env
+  load_env
   echo -e "${BLUE}Starting LakshmiLikhon...${NC}"
   docker compose up -d
-  echo -e "${GREEN}Application started at http://localhost:${APP_PORT:-3000}${NC}"
+  echo -e "${GREEN}Frontend started at http://localhost:${FRONTEND_PORT}${NC}"
+  echo -e "${GREEN}API started at http://localhost:${API_PORT}${NC}"
 }
 
 cmd_stop() {
@@ -51,9 +62,11 @@ cmd_stop() {
 }
 
 cmd_restart() {
+  load_env
   echo -e "${YELLOW}Restarting LakshmiLikhon...${NC}"
   docker compose restart
-  echo -e "${GREEN}Application restarted at http://localhost:${APP_PORT:-3000}${NC}"
+  echo -e "${GREEN}Frontend restarted at http://localhost:${FRONTEND_PORT}${NC}"
+  echo -e "${GREEN}API restarted at http://localhost:${API_PORT}${NC}"
 }
 
 cmd_status() {
@@ -72,6 +85,8 @@ cmd_build() {
 }
 
 cmd_fresh() {
+  ensure_env
+  load_env
   echo -e "${RED}WARNING: This will delete ALL data including the database.${NC}"
   read -p "Are you sure? (y/N): " confirm
   if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
@@ -81,7 +96,8 @@ cmd_fresh() {
     docker compose build --no-cache
     echo -e "${YELLOW}Starting fresh...${NC}"
     docker compose up -d
-    echo -e "${GREEN}Fresh start complete at http://localhost:${APP_PORT:-3000}${NC}"
+    echo -e "${GREEN}Frontend started at http://localhost:${FRONTEND_PORT}${NC}"
+    echo -e "${GREEN}API started at http://localhost:${API_PORT}${NC}"
   else
     echo -e "${CYAN}Cancelled.${NC}"
   fi

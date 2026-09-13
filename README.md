@@ -1,14 +1,17 @@
 # LakshmiLikhon
 
-A lightweight web-based bill/invoice generator for a home-based cloth business.
+A modern web-based bill/invoice generator for a home-based cloth business, built with Next.js, Express.js, and PostgreSQL.
 
 ## Architecture
 
-```
+```shell
 Browser
    |
    v
-Node.js / Express Application
+Next.js Frontend (React + Tailwind + Framer Motion)
+   |
+   v
+Express.js API (JWT Auth + CRUD)
    |
    v
 PostgreSQL Database
@@ -19,10 +22,11 @@ Docker Persistent Volume
 
 ## Tech Stack
 
+- **Frontend:** Next.js 14, React 18, Tailwind CSS, Framer Motion
 - **Backend:** Node.js + Express.js
-- **Frontend:** HTML + CSS + Vanilla JavaScript
+- **Auth:** JWT (httpOnly cookies) + bcryptjs
 - **Database:** PostgreSQL 16
-- **Containerization:** Docker + Docker Compose
+- **Containerization:** Docker + Docker Compose (3 services)
 - **Font:** Inter (Google Fonts)
 
 ## Features
@@ -36,8 +40,11 @@ Docker Persistent Volume
 - Currency toggle (Rs, $, EUR, GBP, Tk)
 - Business name, address, GSTIN on invoices
 - IST date/time on printed bills
+- Admin login/logout with JWT authentication
+- Smooth page transitions and animations (Framer Motion)
+- Modern UI with Tailwind CSS
+- Responsive design (mobile + desktop)
 - Toast notifications
-- Modern UI with SVG icons
 - Persistent data with Docker volumes
 - Management script for easy Docker operations
 
@@ -48,38 +55,43 @@ Docker Persistent Volume
 ## Quick Start
 
 1. Clone the repository:
-   ```bash
+
+   ```shell
    git clone <repo-url>
    cd LakshmiLikhon
    ```
 
 2. Create your environment file:
-   ```bash
+
+   ```shell
    cp .env.example .env
    ```
 
-3. Edit `.env` with your settings (especially `DB_PASSWORD`, `BUSINESS_NAME`, and `BUSINESS_GSTIN`).
+3. Edit `.env` with your settings (especially `DB_PASSWORD`, `JWT_SECRET`, `ADMIN_PASSWORD`, and `BUSINESS_NAME`).
 
 4. Start using the management script:
-   ```bash
+
+   ```shell
    ./manage.sh start
    ```
 
-5. Open http://localhost:3000 in your browser.
+5. Open http://localhost:3001 in your browser (Next.js frontend).
+
+6. Access the admin panel at http://localhost:3001/login with your `ADMIN_PASSWORD`.
 
 ## Management Script
 
 The `manage.sh` script provides easy Docker operations:
 
-```bash
-./manage.sh start      # Start the application
-./manage.sh stop       # Stop the application
-./manage.sh restart    # Restart the application
+```shell
+./manage.sh start      # Start all services (frontend, api, db)
+./manage.sh stop       # Stop all services
+./manage.sh restart    # Restart all services
 ./manage.sh status     # Show container status
-./manage.sh logs       # Tail application logs
+./manage.sh logs       # Tail logs (all or specific service)
 ./manage.sh build      # Rebuild Docker images
 ./manage.sh fresh      # Remove everything and start fresh (deletes data!)
-./manage.sh test       # Run unit tests
+./manage.sh test       # Run tests
 ./manage.sh help       # Show help
 ```
 
@@ -87,13 +99,17 @@ The `manage.sh` script provides easy Docker operations:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| APP_PORT | 3000 | Application port |
+| NEXT_PUBLIC_API_URL | http://localhost:3000 | Express API URL |
+| API_PORT | 3000 | Express API port |
+| FRONTEND_PORT | 3001 | Next.js frontend port |
 | DB_HOST | db | Database host |
 | DB_PORT | 5432 | Database port |
 | DB_NAME | billing | Database name |
 | DB_USER | billing_user | Database user |
 | DB_PASSWORD | change_me | Database password |
 | NODE_ENV | development | Environment |
+| JWT_SECRET | change_me_too | JWT signing secret |
+| ADMIN_PASSWORD | admin123 | Admin login password |
 | BUSINESS_NAME | Your Business Name | Business name for invoices |
 | BUSINESS_ADDRESS | 123 Main Street, City | Business address |
 | BUSINESS_PHONE | +1234567890 | Business phone |
@@ -102,10 +118,20 @@ The `manage.sh` script provides easy Docker operations:
 
 ## API Endpoints
 
+### Public
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | /api/health | Health check (verifies DB connection) |
 | GET | /api/config | Get business configuration |
+
+### Admin (JWT Protected)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/auth/login | Admin login |
+| POST | /api/auth/logout | Admin logout |
+| GET | /api/auth/me | Get current admin user |
 | POST | /api/bills | Create a new bill |
 | GET | /api/bills | List all bills |
 | GET | /api/bills/:id | Get bill details with items |
@@ -134,7 +160,7 @@ Click "Print Bill" on any bill view to get a clean, print-optimized layout:
 
 ## Running Tests
 
-```bash
+```shell
 # Unit tests
 node --test tests/unit/helpers.test.js
 
@@ -143,6 +169,42 @@ node --test tests/**/*.test.js
 
 # Or use manage script
 ./manage.sh test
+```
+
+## Project Structure
+
+```shell
+LakshmiLikhon/
+├── frontend/              # Next.js application
+│   ├── app/               # App Router pages
+│   ├── components/        # Reusable React components
+│   ├── lib/               # Utilities, API client, auth helpers
+│   ├── tailwind.config.ts
+│   ├── next.config.js
+│   ├── package.json
+│   └── Dockerfile
+│
+├── src/                   # Express.js API
+│   ├── server.js
+│   ├── config/
+│   ├── db/
+│   ├── routes/
+│   ├── controllers/
+│   ├── services/
+│   ├── repositories/
+│   ├── middleware/
+│   └── utils/
+│
+├── migrations/
+├── tests/
+├── terraform/
+├── docker-compose.yml
+├── Dockerfile             # Express API Dockerfile
+├── manage.sh
+├── plan.md
+├── loop.md
+├── README.md
+└── AGENT.md
 ```
 
 ## Data Persistence

@@ -1,10 +1,10 @@
 # AGENT.md
 
-## Project: Home Cloth Business Bill Generator
+## Project: LakshmiLikhon - Home Cloth Business Bill Generator
 
 You are an autonomous software engineering agent responsible for designing, implementing,
 testing, debugging, documenting, containerizing, and preparing deployment of a small
-business bill/invoice generation application.
+business bill/invoice generation application with an admin panel.
 
 The application must be simple, reliable, maintainable, and suitable for running:
 
@@ -13,6 +13,19 @@ The application must be simple, reliable, maintainable, and suitable for running
 3. Later through Terraform-managed AWS infrastructure.
 
 Do not over-engineer the application.
+
+### Subagent Delegation
+
+When using subagents (Task tool), follow these rules:
+
+| Task Type | Subagent | Purpose |
+|-----------|----------|---------|
+| Code exploration, file discovery | `explore` | Quick searches, pattern matching, reading files |
+| Writing code, creating files | `general` | Implementation tasks |
+| Running tests, verifying builds | `general` | Execute commands, check outputs |
+| Code review, security audit | `explore` | Analyze code for issues |
+
+Always verify subagent output before committing changes.
 
 ---
 
@@ -48,49 +61,46 @@ The application should prioritize ease of use over unnecessary features.
 
 # 2. Technology Stack
 
+## Frontend
+
+- **Next.js 14** (App Router, React 18)
+- **TypeScript** (type safety)
+- **Tailwind CSS** (utility-first styling)
+- **Framer Motion** (animations)
+- Google Fonts (Inter)
+
 ## Backend
 
 - Node.js
 - Express.js
-- JavaScript
+- JavaScript (CommonJS for backend)
 
-Do not introduce TypeScript unless explicitly required later.
+## Authentication
 
-## Frontend
-
-Use:
-
-- HTML
-- CSS
-- Vanilla JavaScript
-
-Avoid React, Vue, Angular, or other frontend frameworks unless explicitly requested.
-
-The application should remain lightweight.
+- **jsonwebtoken** (JWT token generation/verification)
+- **bcryptjs** (password hashing)
+- httpOnly cookies (secure token storage)
 
 ## Database
-
-Use:
 
 - PostgreSQL
 
 PostgreSQL must run in its own Docker container.
 
-The Node.js application must connect to PostgreSQL over the Docker Compose network.
+The Express.js application must connect to PostgreSQL over the Docker Compose network.
 
-Do not embed the database inside the Node.js container.
+Do not embed the database inside any application container.
 
 ## Containerization
-
-Use:
 
 - Docker
 - Docker Compose
 
 There must be at least:
 
-1. `app` container
-2. `db` container
+1. `frontend` container (Next.js)
+2. `api` container (Express.js)
+3. `db` container (PostgreSQL)
 
 The PostgreSQL database must use a persistent Docker volume.
 
@@ -100,22 +110,28 @@ The PostgreSQL database must use a persistent Docker volume.
 
 Expected architecture:
 
+```
 Browser
    |
    v
-Node.js / Express Application
-   |
+Next.js Frontend (React + Tailwind + Framer Motion)
+   |  Port 3001 (internal)
+   v
+Express.js API (JWT Auth + CRUD)
+   |  Port 3000 (internal)
    v
 PostgreSQL Database
    |
    v
 Docker Persistent Volume
+```
 
 Docker Compose manages:
 
-- Application container
+- Frontend container (Next.js)
+- API container (Express.js)
 - PostgreSQL container
-- Network
+- Internal network
 - Database volume
 - Environment variables
 
@@ -132,7 +148,8 @@ Never hard-code:
 - Database passwords
 - Database usernames
 - Database names
-- Application secrets
+- Application secrets (JWT_SECRET)
+- Admin passwords
 - Ports
 - Database host
 - Database port
@@ -140,7 +157,10 @@ Never hard-code:
 
 Example environment variables:
 
-APP_PORT=3000
+```
+NEXT_PUBLIC_API_URL=http://localhost:3000
+API_PORT=3000
+FRONTEND_PORT=3001
 
 DB_HOST=db
 DB_PORT=5432
@@ -149,6 +169,10 @@ DB_USER=billing_user
 DB_PASSWORD=change_me
 
 NODE_ENV=development
+
+JWT_SECRET=change_me_too
+ADMIN_PASSWORD=admin123
+```
 
 The actual `.env` file must NOT be committed to Git.
 
@@ -162,35 +186,50 @@ containing safe placeholder values.
 
 # 5. Docker Requirements
 
-Create a production-oriented Dockerfile for the Node.js application.
+Create production-oriented Dockerfiles for both the Next.js frontend and Express.js API.
 
-The Docker image should:
+## Frontend Dockerfile (frontend/Dockerfile)
 
-- Use a lightweight Node.js base image.
-- Install only required dependencies.
-- Run as a non-root user where practical.
-- Expose the application port.
-- Start the Node.js server using the package start command.
+- Use Node.js 20 Alpine base image
+- Install dependencies
+- Build Next.js application
+- Run as non-root user
+- Expose port 3001
 
-Docker Compose must:
+## API Dockerfile (Dockerfile in root)
 
-- Build the application image.
-- Start PostgreSQL.
-- Start the Node.js application.
-- Connect both services through an internal network.
-- Persist PostgreSQL data.
-- Load configuration from `.env`.
-- Allow the host application port to be configured through `.env`.
+- Use Node.js 20 Alpine base image
+- Install only production dependencies
+- Run as non-root user
+- Expose port 3000
+- Start the Express.js server
+
+## Docker Compose
+
+Must:
+
+- Build both application images
+- Start PostgreSQL
+- Start Express.js API
+- Start Next.js Frontend
+- Connect all services through an internal network
+- Persist PostgreSQL data
+- Load configuration from `.env`
+- Allow host ports to be configured through `.env`
 
 Example:
 
-APP_PORT=3000
+```
+API_PORT=3000
+FRONTEND_PORT=3001
+```
 
 Docker Compose should map:
 
-`${APP_PORT}:3000`
+- `${API_PORT}:3000` for Express
+- `${FRONTEND_PORT}:3001` for Next.js
 
-Do not hard-code the host port.
+Do not hard-code host ports.
 
 The PostgreSQL port should not need to be exposed to the host by default.
 
@@ -230,11 +269,22 @@ Suggested fields:
 - unit_price
 - total
 
+## Admin Users
+
+Suggested fields:
+
+- id
+- username (unique)
+- password_hash (bcrypt hashed)
+- created_at
+
 Use appropriate PostgreSQL data types.
 
 Money calculations must not rely on floating-point arithmetic where avoidable.
 
 Use NUMERIC/DECIMAL for monetary values.
+
+Password hashing must use bcrypt with appropriate salt rounds.
 
 ---
 
@@ -326,15 +376,19 @@ Prevent:
 
 # 10. Security Requirements
 
-Implement basic production security.
+Implement production security.
 
 Use:
 
 - Parameterized SQL queries.
 - Environment variables for secrets.
-- Secure HTTP headers where practical.
+- Secure HTTP headers (helmet for Express).
 - Request validation.
 - Proper error handling.
+- JWT tokens in httpOnly cookies (not localStorage).
+- bcrypt password hashing (minimum 10 salt rounds).
+- CORS configuration for frontend origin.
+- Rate limiting on auth endpoints.
 
 Do not expose:
 
@@ -342,6 +396,7 @@ Do not expose:
 - Internal database connection strings
 - Stack traces
 - Sensitive environment variables
+- JWT secrets
 
 to the browser.
 
@@ -349,10 +404,13 @@ Never commit `.env`.
 
 Create `.gitignore` with:
 
+```
 .env
 node_modules/
+.next/
 coverage/
 *.log
+```
 
 ---
 
@@ -360,106 +418,124 @@ coverage/
 
 Use a clean REST-style API.
 
-Suggested endpoints:
+## Public Endpoints
 
+```
 GET /api/health
+GET /api/config
+POST /api/auth/login
+```
 
-GET /api/bills
+## Protected Endpoints (JWT Required)
 
-GET /api/bills/:id
-
+```
+POST /api/auth/logout
+GET /api/auth/me
 POST /api/bills
-
+GET /api/bills
+GET /api/bills/:id
 GET /api/bills/search
+```
 
-Potential future endpoints:
+## Potential Future Endpoints
 
+```
 DELETE /api/bills/:id
-
 PUT /api/bills/:id
+POST /api/auth/register
+GET /api/admin/users
+```
 
 Do not implement unnecessary endpoints until required.
 
 The health endpoint should verify application availability and preferably database connectivity.
 
+Authentication must use JWT tokens stored in httpOnly cookies for security.
+
+The auth middleware must verify the JWT token on protected routes and reject unauthorized requests.
+
 ---
 
 # 12. Frontend Requirements
 
-The UI should be clean and professional.
+The UI should be clean, modern, and professional.
 
 This is a home-business application, not a complex enterprise dashboard.
 
-Required screens/components:
+## Tech Stack
 
-## Dashboard
+- **Next.js 14** (App Router for file-based routing)
+- **React 18** (component-based UI)
+- **Tailwind CSS** (utility-first styling, responsive design)
+- **Framer Motion** (animations and transitions)
 
-Show:
+## Required Pages (Next.js App Router)
 
-- Create Bill button.
-- Latest bill number.
-- Recent bills.
-- Basic total/revenue information if easy to implement.
+### Dashboard (`/`)
+- Create Bill button with hover animation
+- Latest bill number
+- Recent bills list with staggered animation
+- Basic total/revenue information
 
-## Create Bill
+### Create Bill (`/bills/new`)
+- Customer form (name, phone, address)
+- Dynamic item list (add/remove with animation)
+- Item total calculation
+- Subtotal, discount, grand total
+- Save Bill with loading state
 
-Include:
+### Bill History (`/bills`)
+- Search bar (bill number, customer name, phone)
+- Bill list with card layout
+- Pagination or infinite scroll
 
-Customer:
+### Bill View (`/bills/[id]`)
+- Business information header
+- Bill metadata
+- Customer section
+- Itemized table
+- Subtotal/discount/total summary
+- Print button
 
-- Name
-- Phone
-- Address
+### Admin Login (`/login`)
+- Username/password form
+- Form validation with error messages
+- Loading state during authentication
+- Redirect to dashboard on success
 
-Products:
+### Admin Panel (`/admin`)
+- Protected route (redirect to /login if not authenticated)
+- Bill management
+- Future: settings, user management
 
-- Product name
-- Description
-- Quantity
-- Unit price
-- Item total
+## Component Architecture
 
-Summary:
+Create reusable components in `frontend/components/`:
 
-- Subtotal
-- Discount
-- Grand Total
+- `Navbar.tsx` - Navigation with auth state
+- `BillCard.tsx` - Bill preview card
+- `BillForm.tsx` - Bill creation form
+- `ItemRow.tsx` - Individual item in form
+- `Toast.tsx` - Notification system
+- `ThemeToggle.tsx` - Dark/light mode toggle
+- `CurrencyToggle.tsx` - Currency selector
+- `LoadingSkeleton.tsx` - Loading placeholder
+- `ProtectedRoute.tsx` - Auth wrapper
 
-Actions:
+## Animations (Framer Motion)
 
-- Save Bill
-- Clear
-- Print after saving
+Implement these animation patterns:
 
-## Bill History
+- **Page transitions**: Fade + slide using AnimatePresence
+- **Card hover**: Scale 1.02 + shadow increase
+- **Button press**: Scale 0.98 on click
+- **List items**: Staggered fade-in on mount
+- **Form fields**: Focus ring animation
+- **Toast**: Slide in from top-right, auto-dismiss
+- **Loading**: Skeleton pulse animation
+- **Modal**: Backdrop blur + scale up
 
-Allow:
-
-- List bills.
-- Search by bill number.
-- Search by customer name.
-- Search by phone number.
-- View bill.
-
-## Bill View
-
-Display:
-
-- Business information.
-- Bill number.
-- Date.
-- Customer details.
-- Products.
-- Quantity.
-- Unit price.
-- Item total.
-- Subtotal.
-- Discount.
-- Grand total.
-
-Provide:
-
-- Print button.
+Always respect `prefers-reduced-motion` for accessibility.
 
 ---
 
@@ -489,27 +565,41 @@ The UI should be:
 - Clean
 - Minimal
 - Readable
-- Responsive
+- Responsive (Tailwind breakpoints: sm, md, lg, xl)
 - Mobile-friendly
 - Desktop-friendly
 
 The application should work well on a normal laptop and phone browser.
 
-Use CSS variables for theme colors.
+## Tailwind CSS
 
-Example conceptual structure:
+Use Tailwind CSS for all styling:
 
-:root {
-    --background: ...;
-    --surface: ...;
-    --text: ...;
-    --border: ...;
-    --primary: ...;
+- Utility classes for rapid development
+- Custom theme configuration in `tailwind.config.ts`
+- Dark mode via `class` strategy
+- Responsive design with mobile-first approach
+- Consistent spacing, colors, and typography
+
+## Theme Configuration
+
+Configure custom colors in `tailwind.config.ts`:
+
+```typescript
+// tailwind.config.ts
+module.exports = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: { ... },
+        surface: { ... },
+        // ...
+      },
+    },
+  },
 }
-
-[data-theme="dark"] {
-    ...
-}
+```
 
 Persist the user's theme preference in localStorage.
 
@@ -589,43 +679,71 @@ Do not destroy existing production data when the application restarts.
 
 # 18. Project Structure
 
-Use a clean structure similar to:
+Use this structure:
 
-bill-generator/
+```
+LakshmiLikhon/
+├── frontend/                  # Next.js application
+│   ├── app/                   # App Router pages
+│   │   ├── layout.tsx         # Root layout with providers
+│   │   ├── page.tsx           # Dashboard
+│   │   ├── globals.css        # Global styles + Tailwind
+│   │   ├── bills/
+│   │   │   ├── new/page.tsx   # Create bill
+│   │   │   ├── [id]/page.tsx  # View bill
+│   │   │   └── page.tsx       # Bill history
+│   │   ├── login/page.tsx     # Admin login
+│   │   └── admin/
+│   │       └── page.tsx       # Admin panel
+│   ├── components/            # Reusable React components
+│   ├── lib/                   # Utilities, API client, auth helpers
+│   ├── public/                # Static assets
+│   ├── tailwind.config.ts     # Tailwind configuration
+│   ├── next.config.js         # Next.js configuration
+│   ├── tsconfig.json          # TypeScript configuration
+│   ├── package.json
+│   └── Dockerfile
 │
-├── agent.md
-├── plan.md
-├── loop.md
-├── README.md
-├── Dockerfile
-├── docker-compose.yml
-├── .dockerignore
-├── .gitignore
-├── .env.example
-├── package.json
-│
-├── src/
+├── src/                       # Express.js API
 │   ├── server.js
 │   ├── config/
 │   ├── db/
+│   │   ├── pool.js
+│   │   └── migrate.js
 │   ├── routes/
+│   │   ├── index.js
+│   │   └── auth.js            # Auth routes
 │   ├── controllers/
+│   │   ├── billController.js
+│   │   └── authController.js  # Auth controller
 │   ├── services/
+│   │   ├── billService.js
+│   │   └── authService.js     # Auth service
 │   ├── repositories/
+│   │   ├── billRepository.js
+│   │   └── adminRepository.js # Admin user queries
 │   ├── middleware/
+│   │   ├── errorHandler.js
+│   │   └── auth.js            # JWT auth middleware
 │   └── utils/
-│
-├── public/
-│   ├── index.html
-│   ├── css/
-│   └── js/
+│       ├── helpers.js
+│       └── jwt.js             # JWT utilities
 │
 ├── migrations/
+│   ├── 001_create_tables.sql
+│   └── 002_create_admin_users.sql
 │
 ├── tests/
-│
-└── terraform/
-    └── README.md
+├── terraform/
+├── docker-compose.yml
+├── Dockerfile                 # Express API Dockerfile
+├── manage.sh
+├── plan.md
+├── loop.md
+├── README.md
+├── AGENT.md
+└── .env.example
+```
 
 Adjust the structure if there is a strong technical reason, but maintain separation of concerns.
 
@@ -735,15 +853,19 @@ A managed database such as RDS can be considered later.
 
 The first AWS deployment target is:
 
+```
 AWS EC2
    |
    Docker Compose
       |
-      +-- Node.js container
+      +-- Next.js Frontend container
+      |
+      +-- Express.js API container
       |
       +-- PostgreSQL container
       |
       +-- Persistent Docker volume
+```
 
 Do not introduce Kubernetes for the initial deployment.
 
@@ -836,8 +958,12 @@ A feature is complete only when:
 
 The complete project is done only when:
 
-- `docker compose up` starts the application.
+- `docker compose up` starts all 3 services (frontend, api, db).
+- Next.js frontend accessible on port 3001.
+- Express.js API accessible on port 3000.
 - PostgreSQL runs separately.
+- Admin can login with JWT authentication.
+- Protected routes reject unauthorized requests.
 - Bills can be created.
 - Bills persist.
 - Bill numbers are sequential.
@@ -845,6 +971,8 @@ The complete project is done only when:
 - Search works.
 - Bill printing works.
 - Light/dark mode works.
+- Animations are smooth (Framer Motion).
+- Tailwind CSS styles are consistent.
 - Tests pass.
 - `.env` configuration works.
 - No secrets are committed.
@@ -857,6 +985,7 @@ The complete project is done only when:
 
 When working autonomously:
 
+```
 PLAN
 → IMPLEMENT
 → TEST
@@ -865,6 +994,7 @@ PLAN
 → RE-TEST
 → DOCUMENT
 → COMMIT-READY
+```
 
 Do not stop after writing code.
 
@@ -882,6 +1012,30 @@ Never hide errors just to make tests pass.
 
 Never remove a test merely because implementation fails.
 
+### Subagent Usage
+
+Use the Task tool to delegate work to subagents:
+
+- **explore** agent: For code exploration, file discovery, reading existing code, pattern matching
+- **general** agent: For writing code, creating files, running commands, multi-step implementation
+
+When delegating:
+
+1. Provide clear, detailed instructions
+2. Specify exact files to read/modify
+3. Ask for specific output (file paths, test results, etc.)
+4. Verify the output before marking tasks complete
+
+Example delegation patterns:
+
+```
+# Explore existing code
+Task(subagent_type="explore", prompt="Find all API routes in src/routes/")
+
+# Implement a feature
+Task(subagent_type="general", prompt="Create the auth middleware in src/middleware/auth.js")
+```
+
 ---
 
 # 28. Priority
@@ -890,11 +1044,13 @@ Priority order:
 
 1. Correctness
 2. Data integrity
-3. Simplicity
-4. Security
+3. Security (including JWT auth)
+4. Simplicity
 5. Maintainability
-6. User experience
+6. User experience (animations, responsive design)
 7. Performance
 8. Infrastructure automation
 
 The bill and financial data must always be treated as important business data.
+
+Admin authentication must be secure (httpOnly cookies, bcrypt, JWT).

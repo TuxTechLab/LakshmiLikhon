@@ -20,11 +20,20 @@ describe('calculateTotals', function () {
     assert.equal(result.total, 350);
   });
 
-  it('should apply discount', function () {
+  it('should apply percentage discount', function () {
+    const items = [{ quantity: 10, unit_price: 100 }];
+    const result = calculateTotals(items, 10);
+    assert.equal(result.subtotal, 1000);
+    assert.equal(result.discount_amount, 100);
+    assert.equal(result.total, 900);
+  });
+
+  it('should apply 50% discount', function () {
     const items = [{ quantity: 10, unit_price: 100 }];
     const result = calculateTotals(items, 50);
     assert.equal(result.subtotal, 1000);
-    assert.equal(result.total, 950);
+    assert.equal(result.discount_amount, 500);
+    assert.equal(result.total, 500);
   });
 
   it('should handle zero discount', function () {

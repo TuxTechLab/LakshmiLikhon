@@ -1,10 +1,24 @@
 services:
-  app:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3001}:3001"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:3000
+      - NODE_ENV=${NODE_ENV:-development}
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "${API_PORT:-3000}:3000"
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - APP_PORT=3000
@@ -13,13 +27,21 @@ services:
       - DB_NAME=${DB_NAME:-billing}
       - DB_USER=${DB_USER:-billing_user}
       - DB_PASSWORD=${DB_PASSWORD:-change_me}
+      - JWT_SECRET=${JWT_SECRET:-change_me_too}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
       - BUSINESS_NAME=${BUSINESS_NAME:-Your Business Name}
       - BUSINESS_ADDRESS=${BUSINESS_ADDRESS:-123 Main Street, City}
       - BUSINESS_PHONE=${BUSINESS_PHONE:-+1234567890}
       - BUSINESS_EMAIL=${BUSINESS_EMAIL:-business@example.com}
+      - BUSINESS_GSTIN=${BUSINESS_GSTIN:-}
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const http = require('http'); http.get('http://localhost:3000/api/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   db:
